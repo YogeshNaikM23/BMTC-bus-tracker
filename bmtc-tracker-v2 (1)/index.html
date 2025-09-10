@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMTC Bus Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-16">
+                    <h1 class="header__title" onclick="showPage('home')">🚌 BMTC Bus Tracker</h1>
+                    <nav class="header__nav">
+                        <a href="#" onclick="showPage('home'); return false;">Home</a>
+                        <a href="#" onclick="showPage('department-login'); return false;">Department</a>
+                        <a href="#" onclick="showPage('conductor-login'); return false;">Conductor</a>
+                    </nav>
+                </div>
+                <div id="user-info" class="hidden">
+                    <span id="user-name"></span>
+                    <button class="btn btn--sm btn--outline" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <div class="container">
+                <section class="hero">
+                    <h2>Find Buses on Route</h2>
+                    <p class="hero__subtitle">Search for all active buses running on a specific route number</p>
+                    
+                    <div class="search-form">
+                        <div class="form-group">
+                            <label class="form-label" for="route-number">Route Number</label>
+                            <input type="text" id="route-number" class="form-control" placeholder="e.g., 500D, 171K, 335E" />
+                        </div>
+                        <button id="search-btn" class="btn btn--primary" onclick="searchBusesByRoute()">Search Buses</button>
+                    </div>
+                </section>
+
+                <section id="search-results" class="search-results hidden">
+                    <h3 id="results-title">Active Buses</h3>
+                    <div id="bus-list" class="bus-grid"></div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Bus Details Page -->
+        <div id="bus-details-page" class="page hidden">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="#" onclick="showPage('home'); return false;">← Back to Search</a>
+                </div>
+                <div id="bus-details-content"></div>
+            </div>
+        </div>
+
+        <!-- Department Login Page -->
+        <div id="department-login-page" class="page hidden">
+            <div class="container">
+                <div class="login-container">
+                    <div class="card">
+                        <div class="card__body">
+                            <h2>Department Login</h2>
+                            <form id="department-login-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="dept-username">Username</label>
+                                    <input type="text" id="dept-username" class="form-control" value="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="dept-password">Password</label>
+                                    <input type="password" id="dept-password" class="form-control" value="" required>
+                                </div>
+                                <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                            </form>
+                            <p class="login-hint">Demo: admin / admin123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conductor Login Page -->
+        <div id="conductor-login-page" class="page hidden">
+            <div class="container">
+                <div class="login-container">
+                    <div class="card">
+                        <div class="card__body">
+                            <h2>Conductor Login</h2>
+                            <form id="conductor-login-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="conductor-username">Username</label>
+                                    <input type="text" id="conductor-username" class="form-control" value="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="conductor-password">Password</label>
+                                    <input type="password" id="conductor-password" class="form-control" value="" required>
+                                </div>
+                                <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                            </form>
+                            <p class="login-hint">Demo: conductor4 / cond123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Dashboard -->
+        <div id="department-dashboard-page" class="page hidden">
+            <div class="container">
+                <div class="dashboard">
+                    <aside class="dashboard__sidebar">
+                        <nav class="sidebar-nav">
+                            <a href="#" class="sidebar-nav__item active" onclick="showDeptSection('add-route'); return false;">Add New Route</a>
+                            <a href="#" class="sidebar-nav__item" onclick="showDeptSection('manage-routes'); return false;">Manage Routes</a>
+                            <a href="#" class="sidebar-nav__item" onclick="showDeptSection('view-routes'); return false;">View All Routes</a>
+                        </nav>
+                    </aside>
+                    <main class="dashboard__content">
+                        <!-- Add Route Section -->
+                        <div id="add-route-section" class="dept-section">
+                            <h3>Add New Route Number</h3>
+                            <form id="add-route-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="new-route-number">Route Number</label>
+                                        <input type="text" id="new-route-number" class="form-control" placeholder="e.g., 600F" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="new-route-name">Route Name</label>
+                                        <input type="text" id="new-route-name" class="form-control" placeholder="e.g., Hebbal to Airport" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Route Stops</label>
+                                    <div id="stops-container">
+                                        <div class="stop-input-row">
+                                            <input type="text" class="form-control stop-input" placeholder="Stop 1" required>
+                                            <button type="button" class="btn btn--sm btn--outline" onclick="addStopInput()">Add Stop</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn--primary">Save Route</button>
+                            </form>
+                        </div>
+
+                        <!-- Manage Routes Section -->
+                        <div id="manage-routes-section" class="dept-section hidden">
+                            <h3>Manage Existing Routes</h3>
+                            <div id="editable-routes-list"></div>
+                        </div>
+
+                        <!-- View Routes Section -->
+                        <div id="view-routes-section" class="dept-section hidden">
+                            <h3>All Route Numbers</h3>
+                            <div id="all-routes-list"></div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conductor Dashboard -->
+        <div id="conductor-dashboard-page" class="page hidden">
+            <div class="container">
+                <div class="conductor-dashboard">
+                    <div class="dashboard-header">
+                        <h2>Conductor Dashboard</h2>
+                        <div id="conductor-status" class="conductor-status"></div>
+                    </div>
+                    
+                    <!-- No Active Bus Section -->
+                    <div id="no-bus-section" class="card">
+                        <div class="card__header">
+                            <h3>Start New Journey</h3>
+                        </div>
+                        <div class="card__body">
+                            <form id="add-bus-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="bus-number">Bus Number</label>
+                                        <input type="text" id="bus-number" class="form-control" placeholder="KA-01-AB-1234" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="bus-route">Route Number</label>
+                                        <select id="bus-route" class="form-control" required>
+                                            <option value="">Select Route Number</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="bus-capacity">Bus Capacity</label>
+                                    <input type="number" id="bus-capacity" class="form-control" min="20" max="60" required>
+                                </div>
+                                <button type="submit" class="btn btn--primary">Start Journey</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Active Bus Operations -->
+                    <div id="active-bus-section" class="dashboard-grid hidden">
+                        <!-- Bus Info Card -->
+                        <div class="card">
+                            <div class="card__header">
+                                <h3>Current Bus Information</h3>
+                            </div>
+                            <div class="card__body">
+                                <div id="current-bus-info"></div>
+                            </div>
+                        </div>
+
+                        <!-- Stage Update Section -->
+                        <div class="card">
+                            <div class="card__header">
+                                <h3>Update Bus Location</h3>
+                            </div>
+                            <div class="card__body">
+                                <form id="update-location-form">
+                                    <div class="form-group">
+                                        <label class="form-label" for="current-location">Current Location</label>
+                                        <select id="current-location" class="form-control" required>
+                                            <option value="">Select current stop</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn--primary">Update Location</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Ticketing Section -->
+                        <div class="card">
+                            <div class="card__header">
+                                <h3>Issue Ticket</h3>
+                            </div>
+                            <div class="card__body">
+                                <form id="issue-ticket-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label" for="boarding-stop">Boarding Stop</label>
+                                            <select id="boarding-stop" class="form-control" required>
+                                                <option value="">Select boarding stop</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="alighting-stop">Alighting Stop</label>
+                                            <select id="alighting-stop" class="form-control" required>
+                                                <option value="">Select alighting stop</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label" for="passenger-count">Passengers</label>
+                                            <input type="number" id="passenger-count" class="form-control" min="1" max="10" value="1" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="ticket-type">Ticket Type</label>
+                                            <select id="ticket-type" class="form-control" required>
+                                                <option value="adult">Adult</option>
+                                                <option value="child">Child</option>
+                                                <option value="senior">Senior</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn--primary">Issue Ticket</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Passenger Info -->
+                        <div class="card">
+                            <div class="card__header">
+                                <h3>Passenger Information</h3>
+                            </div>
+                            <div class="card__body">
+                                <div id="passenger-info" class="passenger-stats"></div>
+                            </div>
+                        </div>
+
+                        <!-- Journey Completion -->
+                        <div class="card">
+                            <div class="card__header">
+                                <h3>Journey Control</h3>
+                            </div>
+                            <div class="card__body">
+                                <div id="journey-status" class="mb-16"></div>
+                                <button id="end-journey-btn" class="btn btn--secondary full-width hidden" onclick="endJourney()">End Journey</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
